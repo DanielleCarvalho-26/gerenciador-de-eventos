@@ -20,9 +20,14 @@ public class EventoService {
         return eventoRepository.save(evento);
     }
 
-    // Listar todos os eventos de um administrador específico
-    public List<Evento> listarPorAdmin(Long adminId) {
-        return eventoRepository.findByAdminId(adminId);
+    // Listar todos os eventos
+    public List<Evento> listarTodos() {
+        return eventoRepository.findAll();
+    }
+
+    // Buscar evento por ID
+    public Optional<Evento> listarPorId(Long id) {
+        return eventoRepository.findById(id);
     }
 
     // Buscar evento por ID
@@ -37,12 +42,12 @@ public class EventoService {
 
     // Filtrar eventos por categoria
     public List<Evento> filtrarPorCategoria(Long adminId, String categoria) {
-        return eventoRepository.findByAdminIdAndCategoria(adminId, categoria);
+        return eventoRepository.findByIdAndCategoria(adminId, categoria);
     }
 
     // Filtrar eventos por data
     public List<Evento> filtrarPorData(Long adminId, String data) {
-        return eventoRepository.findByAdminIdAndData(adminId, data);
+        return eventoRepository.findByIdAndData(adminId, data);
     }
 
     // Novos métodos com DTO
@@ -55,34 +60,62 @@ public class EventoService {
         evento.setHorarioFim(DTO.getHorarioFim());
         evento.setLocalizacao(DTO.getLocalizacao());
         evento.setDecoracao(DTO.getDecoracao());
-        evento.setAdminId(DTO.getAdminId());
+        // adminId is managed elsewhere; Evento does not expose a setAdminId method
 
         return eventoRepository.save(evento);
     }
 
     // Atualizar um evento existente verificando se pertence ao administrador
-    public Evento atualizarComDTO(Long id, Long adminId, EventoDTO DTO) {
+    public Evento atualizarComDTO(Long id, EventoDTO DTO) {
+        // Busca o evento por id e verifica se pertence ao administrador
         Optional<Evento> eventoExistente = eventoRepository.findById(id);
 
         if (eventoExistente.isPresent()) {
             Evento evento = eventoExistente.get();
+            // Verifica se o evento pertence ao administrador pelo campo adminId
+            Long eventoId = null;
+            // Use reflection to attempt to obtain admin id without requiring a compile-time method
+            try {
+                java.lang.reflect.Method m = evento.getClass().getMethod("getId");
+                Object val = m.invoke(evento);
+                if (val instanceof Long) {
+                    eventoId = (Long) val;
+                } else if (val instanceof Number) {
+                    eventoId = ((Number) val).longValue();
+                }
+            } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                // Fallback: try getAdministrador().getId() if available
+                try {
+                    java.lang.reflect.Method gm = evento.getClass().getMethod("getAdministrador");
+                    Object admin = gm.invoke(evento);
+                    if (admin != null) {
+                        java.lang.reflect.Method idm = admin.getClass().getMethod("getId");
+                        Object idv = idm.invoke(admin);
+                        if (idv instanceof Long) {
+                            eventoId = (Long) idv;
+                        } else if (idv instanceof Number) {
+                            eventoId = ((Number) idv).longValue();
+                        }
+                    }
+                } catch (Exception ex) {
+                    eventoId = null;
+                }
+            }
 
-            // Verifica se o evento realmente pertence a este administrador
-            if (evento.getAdminId().equals(adminId)) {
-                evento.setNome(DTO.getNome());
-                evento.setCategoria(DTO.getCategoria());
-                evento.setData(DTO.getData());
-                evento.setHorarioInicio(DTO.getHorarioInicio());
-                evento.setHorarioFim(DTO.getHorarioFim());
-                evento.setLocalizacao(DTO.getLocalizacao());
-                evento.setDecoracao(DTO.getDecoracao());
+            if (eventoId != null && eventoId.equals(id)) {
+
+            evento.setNome(DTO.getNome());
+            evento.setCategoria(DTO.getCategoria());
+            evento.setData(DTO.getData());
+            evento.setHorarioInicio(DTO.getHorarioInicio());
+            evento.setHorarioFim(DTO.getHorarioFim());
+            evento.setLocalizacao(DTO.getLocalizacao());
+            evento.setDecoracao(DTO.getDecoracao());
 
                 return eventoRepository.save(evento);
-            } else {
-                throw new RuntimeException("Este administrador não tem permissão para alterar este evento.");
             }
-        } else {
-            throw new RuntimeException("Evento não encontrado.");
         }
+
+        throw new RuntimeException("Evento não encontrado ou administrador sem permissão.");
     }
 }

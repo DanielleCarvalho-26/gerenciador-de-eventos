@@ -7,8 +7,8 @@ public class EventoDTO {
     private String horarioInicio;
     private String horarioFim;
     private String localizacao;
-    private String decoração;
-    private Long adminId;
+    private String decoracao;
+    private Long id;
 
     // Getters and Setters
     public String getNome() {
@@ -60,18 +60,18 @@ public class EventoDTO {
     }
 
     public String getDecoracao() {
-        return decoração;
+        return decoracao;
     }
 
-    public void setDecoracao(String decoração) {
-        this.decoração = decoração;
+    public void setDecoracao(String decoracao) {
+        this.decoracao = decoracao;
     }
 
-    public Long getAdminId() {
-        return adminId;
+    public Long getId() {
+        return id;
     }
 
-    public void setAdminId(Long adminId) {
-        this.adminId = adminId;
+    public void setId(Long id) {
+        this.id = id;
     }
 }

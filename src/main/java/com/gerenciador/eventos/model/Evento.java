@@ -18,10 +18,10 @@ public class Evento {
     private String categoria;
     private String data;
     private String localizacao;
-    private String decoração;
+    private String decoracao;
     private String horarioInicio;
     private String horarioFim;
-    private Long adminId;
+    
 
     public Evento() {
     }
@@ -68,11 +68,11 @@ public class Evento {
     }
 
     public String getDecoracao() {
-        return decoração;
+        return decoracao;
     }
 
-    public void setDecoracao(String decoração) {
-        this.decoração = decoração;
+    public void setDecoracao(String decoracao) {
+        this.decoracao = decoracao;
     }
 
     public String getHorarioInicio() {
@@ -89,13 +89,5 @@ public class Evento {
 
     public void setHorarioFim(String horarioFim) {
         this.horarioFim = horarioFim;
-    }
-
-    public Long getAdminId() {
-        return adminId;
-    }
-
-    public void setAdminId(Long adminId) {
-        this.adminId = adminId;
     }
 }

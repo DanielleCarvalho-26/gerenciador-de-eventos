@@ -4,20 +4,20 @@ export function FormularioEvento({ eventoParaEditar, onSalvar, onVoltar }) {
   const [nome, setNome] = useState('');
   const [decoracao, setDecoracao] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [local, setLocal] = useState('');
+  const [localizacao, setLocalizacao] = useState('');
   const [data, setData] = useState('');
-  const [horaInicio, setHoraInicio] = useState('');
-  const [horaFim, setHoraFim] = useState('');
+  const [horarioInicio, setHorarioInicio] = useState('');
+  const [horarioFim, setHorarioFim] = useState('');
 
   useEffect(() => {
     if (eventoParaEditar) {
       setNome(eventoParaEditar.nome || eventoParaEditar.titulo || '');
       setDecoracao(eventoParaEditar.decoracao || '');
       setCategoria(eventoParaEditar.categoria || '');
-      setLocal(eventoParaEditar.local || '');
+      setLocalizacao(eventoParaEditar.localizacao || '');
       setData(eventoParaEditar.data || '');
-      setHoraInicio(eventoParaEditar.horaInicio || '');
-      setHoraFim(eventoParaEditar.horaFim || '');
+      setHorarioInicio(eventoParaEditar.horarioInicio || '');
+      setHorarioFim(eventoParaEditar.horarioFim || '');
     }
   }, [eventoParaEditar]);
 
@@ -28,10 +28,10 @@ export function FormularioEvento({ eventoParaEditar, onSalvar, onVoltar }) {
       nome, // Certifique-se de que no Java o atributo chama 'nome'
       decoracao,
       categoria,
-      local,
+      localizacao,
       data,
-      horaInicio,
-      horaFim
+      horarioInicio,
+      horarioFim
     };
     onSalvar(eventoData);
   };
@@ -76,8 +76,8 @@ export function FormularioEvento({ eventoParaEditar, onSalvar, onVoltar }) {
           <input 
             type="text" 
             placeholder="Ex: Salão Principal" 
-            value={local} 
-            onChange={(e) => setLocal(e.target.value)} 
+            value={localizacao} 
+            onChange={(e) => setLocalizacao(e.target.value)} 
           />
         </div>
         <div className="input-group">
@@ -95,8 +95,8 @@ export function FormularioEvento({ eventoParaEditar, onSalvar, onVoltar }) {
             <input 
               type="time" 
               required 
-              value={horaInicio} 
-              onChange={(e) => setHoraInicio(e.target.value)} 
+              value={horarioInicio} 
+              onChange={(e) => setHorarioInicio(e.target.value)} 
             />
           </div>
           <div className="input-group" style={{ flex: 1 }}>
@@ -104,8 +104,8 @@ export function FormularioEvento({ eventoParaEditar, onSalvar, onVoltar }) {
             <input 
               type="time" 
               required 
-              value={horaFim} 
-              onChange={(e) => setHoraFim(e.target.value)} 
+              value={horarioFim} 
+              onChange={(e) => setHorarioFim(e.target.value)} 
             />
           </div>
         </div>

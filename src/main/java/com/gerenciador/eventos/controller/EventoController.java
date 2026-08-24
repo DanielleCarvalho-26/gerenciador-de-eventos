@@ -7,16 +7,24 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/eventos")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class EventoController {
     
     @Autowired
@@ -35,26 +43,33 @@ public class EventoController {
         return evento;
     }
 
-    // 2. Lista Eventos por Administrador
-    @GetMapping("/admin/{adminId}")
-    public ResponseEntity<List<Evento>> listarPorAdmin(@PathVariable Long adminId) {
-        List<Evento> eventos = eventoService.listarPorAdmin(adminId);
+    // 2. Rota para filtrar todos os eventos
+    @GetMapping
+    public ResponseEntity<List<Evento>> listarTodos() {
+        List<Evento> eventos = eventoService.listarTodos(); //Certifique-se de que o service possui esse método de listagem geral
         return ResponseEntity.ok(eventos);
     }
 
-    // 3. Atualizar Evento
-    @PutMapping("/{id}/admin/{adminId}")
-    public ResponseEntity<Object> atualizarEvento(
-        @PathVariable Long id,
-        @PathVariable Long adminId,
-        @RequestBody EventoDTO eventoAtualizado) {
-      try {
-        Evento evento = eventoService.atualizarComDTO(id, adminId, eventoAtualizado);
-        return ResponseEntity.ok(evento);
-      } catch (RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-      }
+    // Lista Eventos por Administrador
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Evento> listarPorId(@PathVariable Long id) {
+        Optional<Evento> evento = eventoService.listarPorId(id);
+        return evento.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // 3. Atualizar Evento
+        @PutMapping("/{id}")
+        public ResponseEntity<Object> atualizarEvento(
+                @PathVariable Long id,
+                @RequestBody EventoDTO eventoAtualizado) {
+            try {
+                Evento evento = eventoService.atualizarComDTO(id, eventoAtualizado);
+                return ResponseEntity.ok(evento);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+        }
 
     // 4. Deletar Evento
     @DeleteMapping("/{id}")
@@ -64,15 +79,15 @@ public class EventoController {
     }
 
     // Rota para filtrar Eventos por categoria: /api/eventos/admin/1/categoria/Aniversário
-    @GetMapping("/admin/{adminId}/categoria/{categoria}")
-    public ResponseEntity<List<Evento>> buscarPorCategoria(@PathVariable Long adminId, @PathVariable String categoria) {
-        return ResponseEntity.ok(eventoService.filtrarPorCategoria(adminId, categoria));
+    @GetMapping("/id/{id}/categoria/{categoria}")
+    public ResponseEntity<List<Evento>> buscarPorCategoria(@PathVariable Long id, @PathVariable String categoria) {
+        return ResponseEntity.ok(eventoService.filtrarPorCategoria(id, categoria));
     }
 
     // Rota para filtrar Eventos por data: /api/eventos/admin/1/data/01/11/2026
-    @GetMapping("/admin/{adminId}/data")
-    public ResponseEntity<List<Evento>> buscarPorData(@PathVariable Long adminId, @RequestParam String data){
-        List<Evento> eventos = eventoService.filtrarPorData(adminId, data);
+    @GetMapping("/id/{id}/data")
+    public ResponseEntity<List<Evento>> buscarPorData(@PathVariable Long id, @RequestParam String data){
+        List<Evento> eventos = eventoService.filtrarPorData(id, data);
         return ResponseEntity.ok(eventos);
     }
 }

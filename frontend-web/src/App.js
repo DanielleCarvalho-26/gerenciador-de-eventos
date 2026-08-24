@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FormularioEvento } from './FormularioEvento';
 import { ListaEventos } from './ListaEventos';
+import { DetalhesEvento } from './DetalhesEvento';
 import './Login.css';
 
 const API_URL = 'http://localhost:8080/api/eventos';
@@ -10,6 +11,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [eventos, setEventos] = useState([]);
   const [eventoParaEditar, setEventoParaEditar] = useState(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
   
   const [emailLogin, setEmailLogin] = useState('');
   const [senhaLogin, setSenhaLogin] = useState('');
@@ -85,6 +87,8 @@ export default function App() {
 
       if (response.ok) {
         setEventos(eventos.filter(ev => ev.id !== id));
+        setTelaAtual('painel');
+        setEventoSelecionado(null);
       } else {
         alert('Erro ao excluir o evento.');
       }
@@ -176,10 +180,18 @@ export default function App() {
           <ListaEventos 
             eventos={eventos} 
             onNovo={() => { setEventoParaEditar(null); setTelaAtual('form-evento'); }}
-            onEditar={(evento) => { setEventoParaEditar(evento); setTelaAtual('form-evento'); }}
-            onExcluir={handleExcluirEvento}
+            onVisualizar={(evento) => { setEventoSelecionado(evento); setTelaAtual('detalhes'); }}
           />
         </div>
+      )}
+
+      {telaAtual === 'detalhes' && eventoSelecionado && (
+        <DetalhesEvento 
+          evento={eventoSelecionado}
+          onVoltar={() => setTelaAtual('painel')}
+          onEditar={(evento) => { setEventoParaEditar(evento); setTelaAtual('form-evento'); }}
+          onExcluir={handleExcluirEvento}
+        />
       )}
 
       {telaAtual === 'form-evento' && (
